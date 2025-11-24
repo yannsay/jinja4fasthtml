@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "jinja4fasthtml"
+  site-url: "https://yannsay.github.io/jinja4fasthtml"
+  description: "Importing Jinja templates to FastHTML"
+  repo-branch: main
+  repo-url: "https://github.com/yannsay/jinja4fasthtml"
