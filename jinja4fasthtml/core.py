@@ -47,7 +47,8 @@ env = jinja2.Environment(loader=jinja2.ChoiceLoader([
 def add_template_from_code(
     templates_dict:dict[str], 
     code:str, 
-    filename:str) :
+    filename:str,
+    env) :
     "Correct way to add a Jinja template to get inheritance"
     
     templates_dict[filename] = code
