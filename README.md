@@ -58,10 +58,158 @@ find package manager specific guidelines on
 
 ## How to use
 
-Fill me in please! Don’t forget code examples:
+### Quick iterations
 
 ``` python
-1+1
+from fastcore.utils import *
+from fasthtml.common import *
+from fasthtml.jupyter import *
+import fasthtml.components as fc
+import httpx
+import jinja2 as jinja2
 ```
 
-    2
+``` python
+daisy_hdrs = (
+    Link(href='https://cdn.jsdelivr.net/npm/daisyui@5', rel='stylesheet', type='text/css'),
+    Script(src='https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4'),
+    Link(href='https://cdn.jsdelivr.net/npm/daisyui@5/themes.css', rel='stylesheet', type='text/css')
+)
+```
+
+``` python
+app = FastHTML(hdrs=daisy_hdrs)
+rt = app.route
+```
+
+``` python
+def get_preview(app):
+    return partial(HTMX, app=app, host=None, port=None)
+preview = get_preview(app)
+```
+
+``` python
+testbtn_template = jinja2.Template("""<div>
+<button hx-post="/proc_btn" hx-target="#test" id="btn" class="btn" name="btn">click me</button>  <div id="test"></div>
+</div>
+""")
+testbtn_template
+```
+
+    <Template memory:73af575a6c60>
+
+``` python
+@rt
+def proc_btn(): return f'hi'
+
+@rt
+def testbtn_jinja():
+    return testbtn_template.ft_render()
+```
+
+``` python
+preview(testbtn_jinja())
+```
+
+<iframe srcdoc=" &lt;!doctype html&gt;
+ &lt;html&gt;
+   &lt;head&gt;
+     &lt;title&gt;FastHTML page&lt;/title&gt;
+     &lt;link rel=&quot;canonical&quot; href=&quot;https://testserver/_AKz5Vkk_QACVIC_9o2KAsg&quot;&gt;
+     &lt;meta charset=&quot;utf-8&quot;&gt;
+     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.js&quot;&gt;&lt;/script&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/gh/answerdotai/fasthtml-js@1.0.12/fasthtml.js&quot;&gt;&lt;/script&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/gh/answerdotai/surreal@main/surreal.js&quot;&gt;&lt;/script&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/gh/gnat/css-scope-inline@main/script.js&quot;&gt;&lt;/script&gt;     &lt;link href=&quot;https://cdn.jsdelivr.net/npm/daisyui@5&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4&quot;&gt;&lt;/script&gt;     &lt;link href=&quot;https://cdn.jsdelivr.net/npm/daisyui@5/themes.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+&lt;script&gt;
+    function sendmsg() {
+        window.parent.postMessage({height: document.documentElement.offsetHeight}, &#x27;*&#x27;);
+    }
+    window.onload = function() {
+        sendmsg();
+        document.body.addEventListener(&#x27;htmx:afterSettle&#x27;,    sendmsg);
+        document.body.addEventListener(&#x27;htmx:wsAfterMessage&#x27;, sendmsg);
+    };&lt;/script&gt;   &lt;/head&gt;
+   &lt;body&gt;
+     &lt;div&gt;
+&#10;&lt;button hx-post=&quot;/proc_btn&quot; hx-target=&quot;#test&quot; id=&quot;btn&quot; class=&quot;btn&quot; name=&quot;btn&quot;&gt;click me&lt;/button&gt;        &lt;div id=&quot;test&quot;&gt;&lt;/div&gt;
+&#10;     &lt;/div&gt;
+   &lt;/body&gt;
+ &lt;/html&gt;
+" style="width: 100%; height: auto; border: none;" onload="{
+        let frame = this;
+        window.addEventListener('message', function(e) {
+            if (e.source !== frame.contentWindow) return; // Only proceed if the message is from this iframe
+            if (e.data.height) frame.style.height = (e.data.height+1) + 'px';
+        }, false);
+    }" allow="accelerometer; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; gamepad; geolocation; gyroscope; hid; identity-credentials-get; idle-detection; magnetometer; microphone; midi; payment; picture-in-picture; publickey-credentials-get; screen-wake-lock; serial; usb; web-share; xr-spatial-tracking"></iframe> 
+
+### Importing templates
+
+``` python
+jinja_template = """<div> {{ name }} </div>
+"""
+jinja_template
+```
+
+    '<div> {{ name }} </div>\n'
+
+``` python
+```
+
+    mkdir: cannot create directory ‘templates’: File exists
+
+``` python
+with open("templates/example.html", "w") as f:
+    f.write(jinja_template)
+```
+
+``` python
+env = jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
+```
+
+``` python
+template_from_file = env.get_template('example.html')
+template_from_file
+```
+
+    <Template 'example.html'>
+
+``` python
+@rt
+def example_from_file(name):
+    return template_from_file.ft_render(name=name)
+```
+
+``` python
+preview(example_from_file(name="Yann"))
+```
+
+<iframe srcdoc=" &lt;!doctype html&gt;
+ &lt;html&gt;
+   &lt;head&gt;
+     &lt;title&gt;FastHTML page&lt;/title&gt;
+     &lt;link rel=&quot;canonical&quot; href=&quot;https://testserver/_EahvkUqwQ_OvIVhuyz-oKg&quot;&gt;
+     &lt;meta charset=&quot;utf-8&quot;&gt;
+     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, viewport-fit=cover&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/htmx.org@2.0.7/dist/htmx.js&quot;&gt;&lt;/script&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/gh/answerdotai/fasthtml-js@1.0.12/fasthtml.js&quot;&gt;&lt;/script&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/gh/answerdotai/surreal@main/surreal.js&quot;&gt;&lt;/script&gt;&lt;script src=&quot;https://cdn.jsdelivr.net/gh/gnat/css-scope-inline@main/script.js&quot;&gt;&lt;/script&gt;     &lt;link href=&quot;https://cdn.jsdelivr.net/npm/daisyui@5&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4&quot;&gt;&lt;/script&gt;     &lt;link href=&quot;https://cdn.jsdelivr.net/npm/daisyui@5/themes.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+&lt;script&gt;
+    function sendmsg() {
+        window.parent.postMessage({height: document.documentElement.offsetHeight}, &#x27;*&#x27;);
+    }
+    window.onload = function() {
+        sendmsg();
+        document.body.addEventListener(&#x27;htmx:afterSettle&#x27;,    sendmsg);
+        document.body.addEventListener(&#x27;htmx:wsAfterMessage&#x27;, sendmsg);
+    };&lt;/script&gt;   &lt;/head&gt;
+   &lt;body&gt;
+     &lt;div&gt; Yann &lt;/div&gt;
+   &lt;/body&gt;
+ &lt;/html&gt;
+" style="width: 100%; height: auto; border: none;" onload="{
+        let frame = this;
+        window.addEventListener('message', function(e) {
+            if (e.source !== frame.contentWindow) return; // Only proceed if the message is from this iframe
+            if (e.data.height) frame.style.height = (e.data.height+1) + 'px';
+        }, false);
+    }" allow="accelerometer; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; gamepad; geolocation; gyroscope; hid; identity-credentials-get; idle-detection; magnetometer; microphone; midi; payment; picture-in-picture; publickey-credentials-get; screen-wake-lock; serial; usb; web-share; xr-spatial-tracking"></iframe> 
